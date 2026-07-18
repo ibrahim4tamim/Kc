@@ -163,6 +163,18 @@ export default function TrackView() {
         <button type="submit" disabled={loading} className="btn-primary w-full !py-3 !text-base">
           {loading ? "جاري البحث..." : "عرض حالة الطلب"}
         </button>
+        <p className="text-center text-sm text-charcoal/70">
+          نسيت رقم طلبك؟{" "}
+          <a
+            href={whatsappLink("مرحباً فريق كواليس الصين، نسيت رقم طلبي وأود استرجاعه. جوالي المسجل في الطلب هو: ")}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-bold text-china-red underline"
+          >
+            راسلنا واتساب
+          </a>
+          {" "}وسنرسله لك خلال دقائق.
+        </p>
       </form>
 
       {data && (

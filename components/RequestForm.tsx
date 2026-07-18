@@ -234,6 +234,13 @@ export default function RequestForm() {
               تواصل معنا عبر واتساب
             </a>
           </div>
+          <p className="mt-6 text-sm text-charcoal/70">
+            عندك منتج آخر تبحث عنه؟{" "}
+            <a href="/request" className="font-bold text-china-red underline">
+              أرسل طلب توريد جديد
+            </a>
+            {" "}— كل منتج له رقم طلب ومتابعة مستقلة.
+          </p>
         </div>
       </div>
     );
