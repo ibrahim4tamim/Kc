@@ -1,11 +1,21 @@
 import { NextResponse } from "next/server";
-import { put } from "@vercel/blob";
+import { getStore } from "@netlify/blobs";
 import { isRateLimited, clientIp } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB لكل صورة
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const ALLOWED_TYPES: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/gif": "gif",
+};
+
+function randomKey(ext: string): string {
+  const rand = Math.random().toString(36).slice(2, 10);
+  return `${Date.now()}-${rand}.${ext}`;
+}
 
 export async function POST(req: Request) {
   try {
@@ -16,20 +26,13 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!process.env.BLOB_READ_WRITE_TOKEN) {
-      // رفع الصور اختياري في الـ MVP — الفورم يعمل بدونها
-      return NextResponse.json(
-        { ok: false, error: "رفع الصور غير مفعّل حالياً. يمكنك إرسال الطلب بدون صور." },
-        { status: 503 }
-      );
-    }
-
     const formData = await req.formData();
     const file = formData.get("file");
     if (!(file instanceof File)) {
       return NextResponse.json({ ok: false, error: "لم يتم إرفاق ملف." }, { status: 400 });
     }
-    if (!ALLOWED_TYPES.includes(file.type)) {
+    const ext = ALLOWED_TYPES[file.type];
+    if (!ext) {
       return NextResponse.json(
         { ok: false, error: "نقبل صوراً فقط (JPG, PNG, WEBP, GIF)." },
         { status: 400 }
@@ -42,12 +45,29 @@ export async function POST(req: Request) {
       );
     }
 
-    const blob = await put(`sourcing-requests/${Date.now()}-${file.name}`, file, {
-      access: "public",
-      addRandomSuffix: true,
+    // Netlify Blobs — يعمل تلقائياً على Netlify بدون أي مفاتيح.
+    // محلياً (خارج Netlify) يفشل getStore فنعيد رسالة ودية والفورم يكمل بدون صور.
+    let store;
+    try {
+      store = getStore({ name: "product-images", consistency: "strong" });
+    } catch {
+      return NextResponse.json(
+        { ok: false, error: "رفع الصور غير مفعّل في بيئة التطوير. يمكنك إرسال الطلب بدون صور." },
+        { status: 503 }
+      );
+    }
+
+    const key = randomKey(ext);
+    await store.set(key, await file.arrayBuffer(), {
+      metadata: { contentType: file.type, originalName: file.name },
     });
 
-    return NextResponse.json({ ok: true, url: blob.url });
+    // الرابط العام يمر عبر مسار العرض /api/images/<key>
+    const origin =
+      process.env.URL ||
+      `${req.headers.get("x-forwarded-proto") ?? "https"}://${req.headers.get("host")}`;
+
+    return NextResponse.json({ ok: true, url: `${origin}/api/images/${key}` });
   } catch (err) {
     console.error("Upload failed:", err);
     return NextResponse.json(

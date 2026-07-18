@@ -11,8 +11,8 @@
     "validate:notion": "node scripts/validate-notion.mjs"
   },
   "dependencies": {
+    "@netlify/blobs": "^10.7.9",
     "@notionhq/client": "^2.2.15",
-    "@vercel/blob": "^0.23.4",
     "next": "^14.2.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
