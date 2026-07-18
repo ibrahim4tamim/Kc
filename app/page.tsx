@@ -6,7 +6,8 @@ const STATS = [
   { value: "+120", label: "مصنعاً ومورداً تم فحصهم" },
   { value: "15+", label: "قطاعاً صناعياً نغطيه" },
   { value: "24 ساعة", label: "متوسط زمن الاستجابة الأولى" },
-  { value: "3", label: "شبكات موردين رئيسية في الصين" },
+  { value: "6", label: "دول خليجية نخدمها" },
+  { value: "+40", label: "طلب توريد تمت إدارته" },
 ];
 
 const TRUST_POINTS = [
@@ -43,8 +44,12 @@ const PROCESS_STEPS = [
     desc: "نوصي بخطة فحص مناسبة لمنتجك قبل الشحن، حتى تصلك البضاعة مطابقة لما اتفقت عليه.",
   },
   {
-    title: "الشحن",
-    desc: "ننسّق الشحن البحري أو الجوي أو البري حسب أولوياتك، ونتابع الشحنة حتى وصولها.",
+    title: "تنسيق الشحن",
+    desc: "ننسّق الشحن البحري أو الجوي أو البري حسب أولوياتك، ونتابع الشحنة أثناء الطريق.",
+  },
+  {
+    title: "الاستلام",
+    desc: "نتابع وصول الشحنة حتى استلامك، ولا نغلق الطلب إلا بعد تأكيدك أن كل شيء مطابق للاتفاق.",
   },
 ];
 
@@ -72,6 +77,7 @@ const DELIVERABLES = [
   { icon: "✅", title: "بيانات موردين موثقة", desc: "تحقق من السجل والنشاط قبل عرض أي مورد عليك." },
   { icon: "📦", title: "تحليل الحد الأدنى للكمية", desc: "هل الـ MOQ منطقي؟ وهل يمكن تخفيضه بالتفاوض؟" },
   { icon: "💰", title: "مقارنة الأسعار", desc: "سعر الوحدة والتكلفة الإجمالية التقديرية بلا مفاجآت." },
+  { icon: "⚖️", title: "تقييم المخاطر", desc: "ننبهك لنقاط الضعف في كل عرض — سعر أقل من المنطقي، مورد حديث، شروط غير مألوفة — قبل القرار." },
   { icon: "🗓️", title: "الجدول الزمني للإنتاج", desc: "مدة العينة ومدة الإنتاج قبل أن تلتزم بموعد لعملائك." },
   { icon: "🚢", title: "خيارات الشحن", desc: "بحري أو جوي أو بري — بالتكلفة والمدة المتوقعة لكل خيار." },
   { icon: "🔍", title: "توصية الفحص", desc: "خطة فحص جودة مناسبة لمنتجك قبل مغادرة المصنع." },
@@ -99,22 +105,88 @@ const FAQ_ITEMS = [
     a: "السعودية هي سوقنا الأساسي، ونخدم دول الخليج كافة. نعرف متطلبات الاستيراد والجمارك السعودية ونجهز الشحنات وفقاً لها.",
   },
   {
-    q: "هل تشحنون دولياً خارج الخليج؟",
-    a: "تركيزنا الحالي على السعودية والخليج لضمان جودة الخدمة. للوجهات الأخرى، راسلنا عبر واتساب وسنخبرك بصدق إن كنا نستطيع خدمتك بالمستوى نفسه.",
+    q: "هل تديرون الشحن أيضاً؟",
+    a: "نعم. ننسّق الشحن البحري أو الجوي أو البري حسب أولوياتك من حيث التكلفة والسرعة، ونتابع الشحنة حتى وصولها. تركيزنا الحالي على السعودية والخليج لضمان جودة الخدمة.",
+  },
+  {
+    q: "كيف أدفع؟",
+    a: "البحث وجمع العروض والمقارنة بدون أي رسوم مقدمة. عند اختيارك عرضاً وتأكيد طلبك، تُحدد الدفعات وفق شروط الدفع الموثقة في العرض نفسه — وتكون كل الأرقام والشروط واضحة أمامك قبل أي التزام مالي.",
+  },
+];
+
+// نموذج توضيحي لتقرير مقارنة الموردين — بيانات افتراضية للعرض فقط
+const REPORT_ROWS = [
+  {
+    supplier: "مصنع A — فوشان",
+    price: "$12.40",
+    moq: "500",
+    lead: "25 يوم",
+    payment: "30% مقدم",
+    rating: "⭐⭐⭐⭐⭐",
+    verdict: "موصى به",
+    highlight: true,
+  },
+  {
+    supplier: "مصنع B — نينغبو",
+    price: "$11.80",
+    moq: "1,000",
+    lead: "35 يوم",
+    payment: "50% مقدم",
+    rating: "⭐⭐⭐⭐",
+    verdict: "جيد — كمية أعلى",
+    highlight: false,
+  },
+  {
+    supplier: "شركة C — ييوو",
+    price: "$10.90",
+    moq: "300",
+    lead: "20 يوم",
+    payment: "100% مقدم",
+    rating: "⭐⭐⭐",
+    verdict: "مخاطرة أعلى",
+    highlight: false,
   },
 ];
 
 const DASHBOARD_TIMELINE = [
   { label: "تم استلام الطلب", state: "done" },
-  { label: "تمت مراجعة الطلب", state: "done" },
   { label: "تم العثور على موردين", state: "done" },
   { label: "جاري جمع عروض الأسعار", state: "current" },
   { label: "إرسال العروض إليك", state: "upcoming" },
+  { label: "متابعة الإنتاج والفحص", state: "upcoming" },
+  { label: "الشحن والاستلام", state: "upcoming" },
 ] as const;
 
 export default function HomePage() {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        name: "كواليس الصين — Kawalis China",
+        description:
+          "منصة متخصصة في التوريد من الصين للسعودية والخليج: تحقق من الموردين، مقارنة عروض، تفاوض، متابعة إنتاج وفحص وشحن.",
+        url: "https://kawalis-china-sourcing.netlify.app",
+        areaServed: ["SA", "AE", "KW", "QA", "BH", "OM"],
+        slogan: "China Decoded for the World",
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: FAQ_ITEMS.map((item) => ({
+          "@type": "Question",
+          name: item.q,
+          acceptedAnswer: { "@type": "Answer", text: item.a },
+        })),
+      },
+    ],
+  };
+
   return (
     <div className="overflow-x-clip">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       {/* ===== Hero ===== */}
       <section className="relative">
         {/* خلفية تحريرية هادئة: توهج ذهبي + خطوط لوجستية */}
@@ -169,7 +241,7 @@ export default function HomePage() {
 
       {/* ===== شريط الإحصائيات ===== */}
       <section className="border-y border-charcoal/[0.06] bg-white/60">
-        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-y-8 px-4 py-12 md:grid-cols-4">
+        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-y-8 px-4 py-12 md:grid-cols-5">
           {STATS.map((s, i) => (
             <Reveal key={s.label} delay={i * 80} className="text-center">
               <p className="font-latin text-3xl font-bold text-charcoal md:text-4xl">
@@ -247,9 +319,9 @@ export default function HomePage() {
             ليست وعوداً عامة — هذه المخرجات الفعلية التي تصلك خلال رحلة طلبك.
           </p>
         </Reveal>
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {DELIVERABLES.map((d, i) => (
-            <Reveal key={d.title} delay={(i % 3) * 80}>
+            <Reveal key={d.title} delay={(i % 4) * 70}>
               <div className="card card-lift h-full">
                 <span className="text-2xl">{d.icon}</span>
                 <h3 className="mt-3 font-bold">{d.title}</h3>
@@ -330,6 +402,69 @@ export default function HomePage() {
             </div>
           </Reveal>
         </div>
+      </section>
+
+      {/* ===== معاينة تقرير المقارنة ===== */}
+      <section className="mx-auto max-w-6xl px-4 py-20 md:py-28">
+        <Reveal className="text-center">
+          <p className="section-label">نموذج توضيحي</p>
+          <h2 className="section-title">
+            هكذا يبدو تقرير <span className="text-gold-deep">المقارنة</span>
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-charcoal/70">
+            كل العروض في جدول واحد بمعايير موحدة — تقارن وتقرر خلال دقائق، لا أسابيع.
+          </p>
+        </Reveal>
+        <Reveal delay={120}>
+          <div className="card mt-12 overflow-x-auto !p-0">
+            <table className="w-full min-w-[720px] text-sm">
+              <thead>
+                <tr className="border-b border-charcoal/[0.08] bg-ivory/70 text-right">
+                  <th className="px-5 py-4 font-bold">المورد</th>
+                  <th className="px-5 py-4 font-bold">سعر الوحدة</th>
+                  <th className="px-5 py-4 font-bold">الحد الأدنى</th>
+                  <th className="px-5 py-4 font-bold">مدة الإنتاج</th>
+                  <th className="px-5 py-4 font-bold">شروط الدفع</th>
+                  <th className="px-5 py-4 font-bold">تقييم المصنع</th>
+                  <th className="px-5 py-4 font-bold">التوصية</th>
+                </tr>
+              </thead>
+              <tbody>
+                {REPORT_ROWS.map((row) => (
+                  <tr
+                    key={row.supplier}
+                    className={`border-b border-charcoal/[0.05] last:border-0 ${
+                      row.highlight ? "bg-gold/[0.07]" : ""
+                    }`}
+                  >
+                    <td className="px-5 py-4 font-bold">{row.supplier}</td>
+                    <td className="px-5 py-4 font-latin">{row.price}</td>
+                    <td className="px-5 py-4 font-latin">{row.moq}</td>
+                    <td className="px-5 py-4">{row.lead}</td>
+                    <td className="px-5 py-4">{row.payment}</td>
+                    <td className="px-5 py-4 text-xs tracking-tight">{row.rating}</td>
+                    <td className="px-5 py-4">
+                      <span
+                        className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-bold ${
+                          row.highlight
+                            ? "bg-green-600/10 text-green-700"
+                            : row.verdict.includes("مخاطرة")
+                              ? "bg-china-red/10 text-china-red"
+                              : "bg-charcoal/[0.06] text-charcoal/70"
+                        }`}
+                      >
+                        {row.verdict}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-3 text-center text-xs text-charcoal/45">
+            بيانات توضيحية — التقرير الفعلي يُبنى على عروض حقيقية لطلبك مع ملاحظات فريقنا.
+          </p>
+        </Reveal>
       </section>
 
       {/* ===== الأسئلة الشائعة ===== */}

@@ -4,9 +4,21 @@ import { whatsappLink } from "@/lib/whatsapp-client";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "كواليس الصين | التوريد من الصين بثقة وشفافية",
+  metadataBase: new URL("https://kawalis-china-sourcing.netlify.app"),
+  title: {
+    default: "كواليس الصين | التوريد من الصين بثقة وشفافية",
+    template: "%s | كواليس الصين",
+  },
   description:
-    "نجد لك المصنع المناسب في الصين وندير عملية التوريد كاملة — تحقق من الموردين، مقارنة عروض، تفاوض، متابعة إنتاج، وفحص جودة حتى وصول شحنتك.",
+    "نجد لك المصنع المناسب في الصين وندير عملية التوريد كاملة — تحقق من الموردين، مقارنة عروض، تفاوض، متابعة إنتاج، وفحص جودة حتى وصول شحنتك. نخدم السعودية والخليج.",
+  openGraph: {
+    title: "كواليس الصين — التوريد من الصين بثقة وشفافية",
+    description:
+      "فريق متخصص يتحقق من الموردين، يقارن العروض، يتفاوض، ويتابع الإنتاج والشحن حتى تصلك شحنتك.",
+    locale: "ar_SA",
+    type: "website",
+    siteName: "كواليس الصين — Kawalis China",
+  },
 };
 
 const NAV_LINKS = [
@@ -110,6 +122,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   </a>
                 </li>
                 <li className="text-ivory/50">السعودية والخليج — الصين</li>
+              </ul>
+              <p className="mt-6 mb-3 text-sm font-bold text-gold">قانوني</p>
+              <ul className="space-y-2.5 text-sm text-ivory/75">
+                <li><Link href="/privacy" className="transition hover:text-white">سياسة الخصوصية</Link></li>
+                <li><Link href="/terms" className="transition hover:text-white">شروط الخدمة</Link></li>
               </ul>
             </div>
           </div>
