@@ -7,7 +7,7 @@
 
 | الملف | الغرض | الحالة |
 |---|---|---|
-| [PLATFORM_BLUEPRINT.md](PLATFORM_BLUEPRINT.md) | المخطط الشامل للمنصة (الرؤية، النطاق، المراحل) — `KC-V2-001` | 📝 مسوّدة معتمدة للمراجعة |
+| [PLATFORM_BLUEPRINT.md](PLATFORM_BLUEPRINT.md) | المخطط الشامل للمنصة (الرؤية، النطاق، المراحل) — `KC-V2-001` | ✅ معتمدة (Active) — 2026-07-21 |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | المعمارية التقنية المعتمدة — `KC-V2-002` | ✅ معتمدة (Active) — 2026-07-21 |
 | [DATA_STRATEGY.md](DATA_STRATEGY.md) | استراتيجية البيانات والحوكمة والمصدر الوحيد للحقيقة — `KC-V2-003` | ✅ معتمدة (Active) — 2026-07-21 |
 | [BRAND_GUIDELINES.md](BRAND_GUIDELINES.md) | دليل الهوية البصرية والصوت والنبرة — `KC-V2-004` | ✅ معتمدة (Active) — 2026-07-21 |

@@ -1,8 +1,10 @@
 # KC Platform V2 — Platform Blueprint
 
 **Document ID:** KC-V2-001
-**Status:** Draft
+**Status:** Active
 **Version:** 1.0
+**Approved On:** 2026-07-21
+**Approved By:** Kawalis China (Owner)
 **Owner:** Kawalis China
 **Platform:** KC Platform V2
 **Official Branch:** `kc-platform-v2`
@@ -645,9 +647,11 @@ Minor implementation decisions may be made within the approved architecture, pro
 
 ## 20. Approval Status
 
-**Current Status:** Draft
+**Current Status:** Active
+**Approved On:** 2026-07-21
+**Approved By:** Kawalis China (Owner)
 
-This document becomes active only after owner review and explicit approval.
+This document has been explicitly approved by the project owner and is now **Active**.
 
 Once approved:
 
