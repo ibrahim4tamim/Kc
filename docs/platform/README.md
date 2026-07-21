@@ -10,7 +10,7 @@
 | [PLATFORM_BLUEPRINT.md](PLATFORM_BLUEPRINT.md) | المخطط الشامل للمنصة (الرؤية، النطاق، المراحل) — `KC-V2-001` | 📝 مسوّدة معتمدة للمراجعة |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | المعمارية التقنية المعتمدة — `KC-V2-002` | ✅ معتمدة (Active) — 2026-07-21 |
 | [DATA_STRATEGY.md](DATA_STRATEGY.md) | استراتيجية البيانات والحوكمة والمصدر الوحيد للحقيقة — `KC-V2-003` | ✅ معتمدة (Active) — 2026-07-21 |
-| [BRAND_GUIDELINES.md](BRAND_GUIDELINES.md) | دليل الهوية البصرية والصوت والنبرة | ⏳ هيكل مبدئي |
+| [BRAND_GUIDELINES.md](BRAND_GUIDELINES.md) | دليل الهوية البصرية والصوت والنبرة — `KC-V2-004` | ✅ معتمدة (Active) — 2026-07-21 |
 | [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) | نظام التصميم (الألوان، الطباعة، المكونات) | ⏳ هيكل مبدئي |
 | [DEVELOPMENT_RULES.md](DEVELOPMENT_RULES.md) | قواعد التطوير والمساهمة | ✅ قواعد أساسية |
 | [GIT_WORKFLOW.md](GIT_WORKFLOW.md) | سير العمل على Git والفروع | ✅ موثّق |
