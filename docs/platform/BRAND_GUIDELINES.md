@@ -509,7 +509,7 @@ Preferred trust signals include:
 Prohibited trust practices include:
 
 - Placeholder or invented statistics
-- Unsupported claims such as "best," "guaranteed," or "number one"
+- Unsupported claims such as “best,” “guaranteed,” or “number one”
 - Fake reviews or logos
 - Unverified factory counts, request counts, or success rates
 - Presenting stock or generated imagery as actual evidence
@@ -548,7 +548,7 @@ Preferred examples:
 
 Avoid:
 
-- Ambiguous labels such as "انطلق" when the action is unclear
+- Ambiguous labels such as “انطلق” when the action is unclear
 - Pressure language
 - False urgency
 - Promises that exceed the workflow

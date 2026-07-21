@@ -523,7 +523,7 @@ May be used only when it does not rewrite shared branch history and the reposito
 
 - Understand both sides before resolving a conflict.
 - Preserve approved behavior and user changes.
-- Do not select "ours" or "theirs" across broad files without inspection.
+- Do not select “ours” or “theirs” across broad files without inspection.
 - Re-run relevant checks after resolution.
 - Request review again when conflict resolution changes material logic.
 - Database migration conflicts require special care; never renumber or edit applied migrations casually.

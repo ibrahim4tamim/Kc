@@ -318,7 +318,7 @@ The platform uses restrained, modern rounding.
 | `radius-xl` | 24px | Selected editorial surfaces |
 | `radius-full` | 9999px | Avatars and approved pill controls |
 
-Avoid excessive rounded containers and nested "card inside card" layouts.
+Avoid excessive rounded containers and nested “card inside card” layouts.
 
 ---
 
@@ -758,7 +758,7 @@ They must not expose:
 - Compare equivalent units and terms.
 - State when values are estimates.
 - Preserve currency context.
-- Avoid visually declaring a "best" option unless approved criteria justify it.
+- Avoid visually declaring a “best” option unless approved criteria justify it.
 - Customer decisions must reference the exact quotation version displayed.
 
 ---
@@ -1134,7 +1134,7 @@ A reusable component is complete when:
 5. Document the decision.
 6. Obtain approval proportional to its scope.
 
-Do not add components or variants "for future use" without a confirmed need.
+Do not add components or variants “for future use” without a confirmed need.
 
 ---
 

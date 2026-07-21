@@ -862,7 +862,7 @@ Before a change is considered ready, run the relevant available checks, includin
 - Database and RLS verification when affected
 - Accessibility and RTL checks for interface changes
 
-If a check cannot run, document the reason, risk, and required follow-up. "Not run" is not equivalent to "passed."
+If a check cannot run, document the reason, risk, and required follow-up. “Not run” is not equivalent to “passed.”
 
 ---
 
