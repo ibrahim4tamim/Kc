@@ -13,7 +13,7 @@
 | [BRAND_GUIDELINES.md](BRAND_GUIDELINES.md) | دليل الهوية البصرية والصوت والنبرة — `KC-V2-004` | ✅ معتمدة (Active) — 2026-07-21 |
 | [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) | نظام التصميم (الألوان، الطباعة، المكونات) — `KC-V2-005` | ✅ معتمدة (Active) — 2026-07-21 |
 | [DEVELOPMENT_RULES.md](DEVELOPMENT_RULES.md) | قواعد التطوير والمساهمة — `KC-V2-006` | ✅ معتمدة (Active) — 2026-07-21 |
-| [GIT_WORKFLOW.md](GIT_WORKFLOW.md) | سير العمل على Git والفروع | ✅ موثّق |
+| [GIT_WORKFLOW.md](GIT_WORKFLOW.md) | سير العمل على Git والفروع — `KC-V2-007` | ✅ معتمدة (Active) — 2026-07-21 |
 
 ## بنية التوثيق الكاملة
 
