@@ -8,7 +8,7 @@
 | الملف | الغرض | الحالة |
 |---|---|---|
 | [PLATFORM_BLUEPRINT.md](PLATFORM_BLUEPRINT.md) | المخطط الشامل للمنصة (الرؤية، النطاق، المراحل) — `KC-V2-001` | 📝 مسوّدة معتمدة للمراجعة |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | المعمارية التقنية الحية (مبنية على v1.0 المعتمدة) | ✅ أساس معتمد |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | المعمارية التقنية المعتمدة — `KC-V2-002` | 📝 مسوّدة معتمدة للمراجعة |
 | [DATA_STRATEGY.md](DATA_STRATEGY.md) | استراتيجية البيانات والنمذجة والمصدر الوحيد للحقيقة | ⏳ هيكل مبدئي |
 | [BRAND_GUIDELINES.md](BRAND_GUIDELINES.md) | دليل الهوية البصرية والصوت والنبرة | ⏳ هيكل مبدئي |
 | [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) | نظام التصميم (الألوان، الطباعة، المكونات) | ⏳ هيكل مبدئي |
