@@ -1,8 +1,10 @@
 # KC Platform V2 — Architecture
 
 **Document ID:** KC-V2-002
-**Status:** Draft
+**Status:** Active
 **Version:** 1.0
+**Approved On:** 2026-07-21
+**Approved By:** Kawalis China (Owner)
 **Owner:** Kawalis China
 **Official Branch:** `kc-platform-v2`
 **Parent Document:** `KC-V2-001 — PLATFORM_BLUEPRINT.md`
@@ -1018,10 +1020,12 @@ Minor implementation details may evolve without changing the approved architectu
 
 # 40. Approval Status
 
-**Status:** Draft
+**Status:** Active
+**Approved On:** 2026-07-21
+**Approved By:** Kawalis China (Owner)
 
-This document becomes **Active** only after explicit approval by the project owner.
+This document has been explicitly approved by the project owner and is now **Active**.
 
-Once approved, it serves as the official technical architecture reference for KC Platform V2.
+It serves as the official technical architecture reference for KC Platform V2.
 
 All implementation decisions must comply with this document unless a newer approved version supersedes it.
