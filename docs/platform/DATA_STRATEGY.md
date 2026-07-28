@@ -129,7 +129,22 @@ Notion is the knowledge and documentation source of truth for:
 
 Operational summaries may be synchronized to Notion only when the source, direction, owner, permitted fields, and failure behavior are documented. Sensitive operational data is not copied by default.
 
-### 3.3 GitHub Responsibilities
+### 3.3 Operational Data Governance
+
+Supabase is the authoritative operational source of truth for KC Platform V2. The KC Platform Dashboard is the exclusive operational interface for creating, updating, reviewing, approving, tracking, and managing operational records, workflows, tasks, statuses, documents and metadata, and customer-visible and internal operational activity.
+
+Notion may be used only for KCOS, knowledge management, SOP documentation, strategic planning, internal documentation, research, the AI prompt library, product planning, roadmaps, decision records, administrative references, and non-operational project management. It must never be used as an operational source of truth, operational database, operational workflow engine, required dependency for daily operations, or storage location for authoritative customer, supplier, RFQ, quotation, purchase-order, shipment, payment, task, or approval records.
+
+Any operational record currently stored in Notion belongs to the legacy MVP only and is non-authoritative for KC Platform V2. The legacy Notion operational dependency must not be expanded. Any future operational workflow that depends on Notion is non-compliant with the approved architecture.
+
+The approved responsibility model is:
+
+- KC Platform Dashboard = sole operational interface
+- Supabase = authoritative operational database and source of truth
+- Notion = knowledge, documentation, SOPs, planning, research, and KCOS only
+- GitHub = source code, migrations, and versioned technical documentation
+
+### 3.4 GitHub Responsibilities
 
 GitHub owns versioned technical artifacts, including:
 
@@ -141,7 +156,7 @@ GitHub owns versioned technical artifacts, including:
 
 Secrets, customer exports, production backups, and operational attachments must never be committed.
 
-### 3.4 External Service Boundary
+### 3.5 External Service Boundary
 
 Before an external service receives data, the project must document:
 

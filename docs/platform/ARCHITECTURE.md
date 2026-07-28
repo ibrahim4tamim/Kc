@@ -259,6 +259,18 @@ External services must remain isolated from core business logic.
 
 Every type of information has one official owner.
 
+## Operational System Principle
+
+The KC Platform Dashboard is the sole operational interface for all day-to-day business activities. All operational workflows must be executed through the Dashboard, including customer and organization management; users, roles, and permissions; RFQs and product requests; suppliers and quotations; customer approvals; purchase orders; manufacturing follow-up; inspections; shipments and containers; payments, invoices, and balance tracking; notifications; tasks and internal approvals; activity history, reporting, and operational documents.
+
+Employees must be able to complete daily operational work entirely through the KC Platform Dashboard. Supabase is the authoritative operational data store, and the Dashboard is its operational interface.
+
+Notion is a non-operational knowledge and documentation system. It must never act as an operational database or workflow engine; be required for daily operational work; store authoritative operational business records that belong to Supabase; or become a dependency for customer, supplier, quotation, purchasing, inspection, shipment, payment, approval, or internal operational workflows. It must not be the primary interface for creating, updating, approving, or tracking operational records.
+
+Any current operational dependency on Notion is classified as a temporary legacy MVP dependency only and must not be expanded. All KC Platform V2 operational capabilities must be implemented through the Dashboard and stored in Supabase.
+
+---
+
 ## Supabase
 
 Owns all operational data including:
