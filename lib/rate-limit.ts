@@ -41,6 +41,8 @@ export function isDuplicateSubmission(token: string): boolean {
 }
 
 export function clientIp(req: Request): string {
-  const fwd = req.headers.get("x-forwarded-for");
-  return fwd?.split(",")[0]?.trim() || "unknown";
+  // Only trust the platform-populated Netlify header. A generic
+  // x-forwarded-for value can be supplied by a direct client request.
+  const ip = req.headers.get("x-nf-client-connection-ip")?.trim();
+  return ip && /^[a-fA-F0-9:.]{3,64}$/.test(ip) ? ip : "unknown";
 }
