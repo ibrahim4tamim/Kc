@@ -12,6 +12,7 @@ import {
   isMembershipStatus,
   isSelfElevationAttempt,
 } from "../lib/auth/membership";
+import { authCallbackUrl, customerMembershipDefaults, isCustomerRole, isVerifiedCustomer, passwordRecoveryUrl, SIGN_OUT_REDIRECT_PATH } from "../lib/auth/customer";
 
 describe("Supabase foundation safety", () => {
   it("uses exactly the approved roles and keeps customer non-internal", () => {
@@ -87,5 +88,20 @@ describe("Supabase foundation safety", () => {
     expect(canReadOrganizationMemberships("customer")).toBe(false);
     expect(isSelfElevationAttempt("user-a", "user-a", "admin")).toBe(true);
     expect(isSelfElevationAttempt("user-a", "user-b", "admin")).toBe(false);
+  });
+
+  it("uses local Supabase callback and recovery URLs for customer registration and reset", () => {
+    expect(authCallbackUrl("https://kc.example")).toBe("https://kc.example/auth/callback?next=%2Faccount");
+    expect(passwordRecoveryUrl("https://kc.example")).toBe("https://kc.example/auth/update-password");
+  });
+
+  it("activates only verified customer accounts and never treats internal roles as customer", () => {
+    expect(isVerifiedCustomer("2026-07-29T00:00:00Z", "customer")).toBe(true);
+    expect(isVerifiedCustomer(null, "customer")).toBe(false);
+    expect(isVerifiedCustomer("2026-07-29T00:00:00Z", "admin")).toBe(false);
+    expect(isCustomerRole("customer")).toBe(true);
+    expect(isCustomerRole("operations")).toBe(false);
+    expect(customerMembershipDefaults()).toEqual({ role: "customer", status: "active" });
+    expect(SIGN_OUT_REDIRECT_PATH).toBe("/auth/sign-in");
   });
 });

@@ -2,9 +2,11 @@ import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import type { AppRole } from "./roles";
 import type { Database } from "@/lib/supabase/types";
+import type { User } from "@supabase/supabase-js";
 
 type Membership = Database["public"]["Tables"]["organization_memberships"]["Row"];
 type Organization = Database["public"]["Tables"]["organizations"]["Row"];
+type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 
 export class AuthorizationError extends Error {
   constructor(
@@ -15,9 +17,27 @@ export class AuthorizationError extends Error {
 }
 
 export async function getAuthenticatedUserId(): Promise<string | null> {
+  const user = await getAuthenticatedUser();
+  return user?.id ?? null;
+}
+
+export async function getAuthenticatedUser(): Promise<User | null> {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  return user?.id ?? null;
+  return user;
+}
+
+export async function getCurrentProfile(): Promise<Profile | null> {
+  const userId = await getAuthenticatedUserId();
+  if (!userId) return null;
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, display_name, created_at, updated_at")
+    .eq("id", userId)
+    .maybeSingle();
+  if (error) throw new AuthorizationError("MEMBERSHIP_REQUIRED");
+  return data;
 }
 
 export async function getActiveMemberships(): Promise<Membership[]> {

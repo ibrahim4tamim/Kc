@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getSupabasePublicConfig } from "./env";
 import type { Database } from "./types";
 
-const DASHBOARD_PREFIX = "/dashboard";
+const PROTECTED_PREFIXES = ["/dashboard", "/account"];
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -26,7 +26,7 @@ export async function updateSession(request: NextRequest) {
   const { data: claimsResult } = await supabase.auth.getClaims();
 
   if (
-    request.nextUrl.pathname.startsWith(DASHBOARD_PREFIX) &&
+    PROTECTED_PREFIXES.some((prefix) => request.nextUrl.pathname.startsWith(prefix)) &&
     !claimsResult?.claims.sub
   ) {
     const redirectUrl = request.nextUrl.clone();

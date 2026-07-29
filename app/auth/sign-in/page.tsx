@@ -1,6 +1,8 @@
 "use client";
 
 import { type FormEvent, useState } from "react";
+import Link from "next/link";
+import { safeRedirectPath } from "@/lib/auth/redirects";
 import { createClient } from "@/lib/supabase/client";
 
 export default function SignInPage() {
@@ -22,7 +24,8 @@ export default function SignInPage() {
       return;
     }
 
-    window.location.assign("/dashboard");
+    const next = safeRedirectPath(new URLSearchParams(window.location.search).get("next"));
+    window.location.assign(next);
   }
 
   return (
@@ -60,6 +63,7 @@ export default function SignInPage() {
             {submitting ? "جارٍ تسجيل الدخول..." : "تسجيل الدخول"}
           </button>
         </form>
+        <div className="flex justify-between text-sm font-bold text-gold-deep"><Link href="/auth/sign-up">إنشاء حساب</Link><Link href="/auth/forgot-password">نسيت كلمة المرور؟</Link></div>
       </div>
     </section>
   );

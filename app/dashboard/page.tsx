@@ -1,9 +1,11 @@
 import { redirect } from "next/navigation";
 import { getCurrentAuthContext, getCurrentOrganization } from "@/lib/auth/server";
+import { isInternalRole } from "@/lib/auth/roles";
 
 export default async function DashboardFoundationPage() {
   const { userId, role } = await getCurrentAuthContext();
   if (!userId) redirect("/auth/sign-in?next=/dashboard");
+  if (!role || !isInternalRole(role)) redirect("/account");
   const organization = await getCurrentOrganization();
 
   return (
