@@ -15,9 +15,7 @@ No service-role key is required for normal browser authentication. Do not add on
 
 ## Database boundary
 
-The migration creates `profiles` and `user_roles` only. Every new user receives the `customer` role through a security-definer database trigger. Authenticated users may read their own profile and role, and may update only their own `display_name`; they cannot insert, delete, or change role assignments directly.
-
-The owner bootstrap process, organization/membership model, staff invitations, and production migration process remain owner decisions. They are intentionally not implemented here.
+The initial migration creates `profiles` and the legacy `user_roles` compatibility table. The Sprint 1B organization membership migration keeps automatic profile creation but ends automatic role assignment. `organization_memberships` is now the only authoritative role source; no authenticated user receives a membership automatically. See [ORGANIZATION_MEMBERSHIP_FOUNDATION.md](ORGANIZATION_MEMBERSHIP_FOUNDATION.md) for controlled owner bootstrap, RLS, and deferred onboarding decisions.
 
 ## Type generation
 

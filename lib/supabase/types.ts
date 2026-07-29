@@ -9,6 +9,10 @@ export const APP_ROLES = [
 ] as const;
 
 export type AppRole = (typeof APP_ROLES)[number];
+export const MEMBERSHIP_STATUSES = ["active", "invited", "suspended"] as const;
+export type MembershipStatus = (typeof MEMBERSHIP_STATUSES)[number];
+export const ORGANIZATION_STATUSES = ["active", "archived"] as const;
+export type OrganizationStatus = (typeof ORGANIZATION_STATUSES)[number];
 
 export interface Database {
   public: {
@@ -48,11 +52,55 @@ export interface Database {
         Update: never;
         Relationships: [];
       };
+      organizations: {
+        Row: {
+          id: string;
+          name: string;
+          slug: string;
+          status: OrganizationStatus;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          slug: string;
+          status?: OrganizationStatus;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: never;
+        Relationships: [];
+      };
+      organization_memberships: {
+        Row: {
+          id: string;
+          organization_id: string;
+          user_id: string;
+          role: AppRole;
+          status: MembershipStatus;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          user_id: string;
+          role: AppRole;
+          status?: MembershipStatus;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: never;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
     Enums: {
       app_role: AppRole;
+      membership_status: MembershipStatus;
+      organization_status: OrganizationStatus;
     };
     CompositeTypes: Record<string, never>;
   };
