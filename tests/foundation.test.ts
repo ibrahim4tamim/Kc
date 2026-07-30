@@ -13,6 +13,8 @@ import {
   isSelfElevationAttempt,
 } from "../lib/auth/membership";
 import { authCallbackUrl, customerMembershipDefaults, isCustomerRole, isVerifiedCustomer, passwordRecoveryUrl, SIGN_OUT_REDIRECT_PATH } from "../lib/auth/customer";
+import { canManageCustomerData, canReadCustomerData, canSelfLinkCustomer, customerSafeDto, hasSinglePrimaryContact } from "../lib/customers/authorization";
+import { customerContactInputSchema, customerInputSchema } from "../lib/customers/validation";
 
 describe("Supabase foundation safety", () => {
   it("uses exactly the approved roles and keeps customer non-internal", () => {
@@ -103,5 +105,28 @@ describe("Supabase foundation safety", () => {
     expect(isCustomerRole("operations")).toBe(false);
     expect(customerMembershipDefaults()).toEqual({ role: "customer", status: "active" });
     expect(SIGN_OUT_REDIRECT_PATH).toBe("/auth/sign-in");
+  });
+
+  it("validates the approved customer model and normalizes international identity fields", () => {
+    expect(customerInputSchema.parse({ customerType: "company", displayName: "  Example Co  ", preferredCurrency: "usd", countryCode: "sa", status: "lead" })).toMatchObject({ customerType: "company", displayName: "Example Co", preferredCurrency: "USD", countryCode: "SA" });
+    expect(customerInputSchema.safeParse({ customerType: "person", displayName: "X" }).success).toBe(false);
+    expect(customerInputSchema.safeParse({ customerType: "individual", displayName: "X", status: "deleted" }).success).toBe(false);
+  });
+
+  it("supports multiple contacts while enforcing usable contact methods and one primary contact", () => {
+    expect(customerContactInputSchema.parse({ fullName: "Ada", email: "ADA@EXAMPLE.COM" })).toMatchObject({ email: "ada@example.com", status: "active" });
+    expect(customerContactInputSchema.safeParse({ fullName: "Ada" }).success).toBe(false);
+    expect(hasSinglePrimaryContact(0)).toBe(true);
+    expect(hasSinglePrimaryContact(1)).toBe(true);
+    expect(hasSinglePrimaryContact(2)).toBe(false);
+  });
+
+  it("limits customer data by role and strips customer-internal fields from safe DTOs", () => {
+    expect(canManageCustomerData("operations")).toBe(true);
+    expect(canManageCustomerData("purchasing")).toBe(false);
+    expect(canReadCustomerData("finance")).toBe(true);
+    expect(canReadCustomerData("customer")).toBe(false);
+    expect(canSelfLinkCustomer("customer")).toBe(false);
+    expect(customerSafeDto({ id: "customer-1", display_name: "Example", notes: "internal", tax_number: "tax", commercial_registration_number: "cr" })).toEqual({ id: "customer-1", displayName: "Example" });
   });
 });
