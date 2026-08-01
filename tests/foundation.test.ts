@@ -15,6 +15,8 @@ import {
 import { authCallbackUrl, customerMembershipDefaults, isCustomerRole, isVerifiedCustomer, passwordRecoveryUrl, SIGN_OUT_REDIRECT_PATH } from "../lib/auth/customer";
 import { canManageCustomerData, canReadCustomerData, canSelfLinkCustomer, customerSafeDto, hasSinglePrimaryContact } from "../lib/customers/authorization";
 import { customerContactInputSchema, customerInputSchema } from "../lib/customers/validation";
+import { canCustomerReadRfq, canManageRfq, canReadRfq } from "../lib/rfqs/authorization";
+import { activityInputSchema, attachmentInputSchema, rfqInputSchema, rfqItemInputSchema } from "../lib/rfqs/validation";
 
 describe("Supabase foundation safety", () => {
   it("uses exactly the approved roles and keeps customer non-internal", () => {
@@ -128,5 +130,33 @@ describe("Supabase foundation safety", () => {
     expect(canReadCustomerData("customer")).toBe(false);
     expect(canSelfLinkCustomer("customer")).toBe(false);
     expect(customerSafeDto({ id: "customer-1", display_name: "Example", notes: "internal", tax_number: "tax", commercial_registration_number: "cr" })).toEqual({ id: "customer-1", displayName: "Example" });
+  });
+});
+
+describe("RFQ core foundation", () => {
+  it("validates RFQs, customer/contact identifiers, status, priority, and normalized location", () => {
+    expect(rfqInputSchema.parse({ customerId: "11111111-1111-4111-8111-111111111111", primaryContactId: "22222222-2222-4222-8222-222222222222", title: "  Import workspace ", preferredCurrency: "usd", destinationCountryCode: "sa" })).toMatchObject({ title: "Import workspace", preferredCurrency: "USD", destinationCountryCode: "SA", status: "draft", priority: "normal" });
+    expect(rfqInputSchema.safeParse({ customerId: "bad", title: "X" }).success).toBe(false);
+    expect(rfqInputSchema.safeParse({ customerId: "11111111-1111-4111-8111-111111111111", title: "X", status: "quoted" }).success).toBe(false);
+  });
+  it("supports one or many independently numbered positive-quantity items", () => {
+    const item = { itemNumber: 1, productName: "Widget", requestedQuantity: 1, unit: "pcs" };
+    expect(rfqItemInputSchema.parse(item).itemNumber).toBe(1);
+    expect(rfqItemInputSchema.parse({ ...item, itemNumber: 2 }).itemNumber).toBe(2);
+    expect(rfqItemInputSchema.safeParse({ ...item, requestedQuantity: 0 }).success).toBe(false);
+    expect(rfqItemInputSchema.safeParse({ ...item, status: "supplier_selected" }).success).toBe(false);
+  });
+  it("allows only approved attachment owners and safe metadata, without public paths", () => {
+    expect(attachmentInputSchema.parse({ ownerType: "rfq", ownerId: "11111111-1111-4111-8111-111111111111", storageBucket: "rfq-files", storagePath: "org/file.pdf", originalFilename: "file.pdf", contentType: "application/pdf", fileSize: 1, visibility: "customer" }).visibility).toBe("customer");
+    expect(attachmentInputSchema.safeParse({ ownerType: "supplier", ownerId: "11111111-1111-4111-8111-111111111111", storageBucket: "rfq-files", storagePath: "/unsafe", originalFilename: "x", contentType: "text/plain", fileSize: 1 }).success).toBe(false);
+  });
+  it("keeps activity bounded, explicitly visible, and foundation-only", () => {
+    expect(activityInputSchema.parse({ eventType: "rfq_created", title: "Created", visibility: "customer" }).eventType).toBe("rfq_created");
+    expect(activityInputSchema.safeParse({ eventType: "quotation_received", title: "No" }).success).toBe(false);
+  });
+  it("enforces organization-scoped staff and linked-customer boundaries in pure authorization", () => {
+    expect(canManageRfq("operations")).toBe(true); expect(canManageRfq("purchasing")).toBe(false);
+    expect(canReadRfq("finance")).toBe(true); expect(canReadRfq("customer")).toBe(false);
+    expect(canCustomerReadRfq("customer-a", "customer-a")).toBe(true); expect(canCustomerReadRfq("customer-a", "customer-b")).toBe(false);
   });
 });
