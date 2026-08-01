@@ -14,6 +14,7 @@
 5. Design System
 6. Development Rules
 7. Git Workflow
+8. Business Domain Model
 
 ## فهرس الوثائق
 
@@ -26,6 +27,7 @@
 | KC-V2-005 | Design System | تحويل الهوية إلى أسس وأنماط ومكوّنات قابلة للتنفيذ | Active | 1.0 | 2026-07-21 | [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) |
 | KC-V2-006 | Development Rules | ضبط معايير التطوير والأمان والجودة والمراجعة | Active | 1.0 | 2026-07-21 | [`DEVELOPMENT_RULES.md`](DEVELOPMENT_RULES.md) |
 | KC-V2-007 | Git Workflow | تنظيم الفروع والمراجعات والدمج والإصدارات | Active | 1.0 | 2026-07-21 | [`GIT_WORKFLOW.md`](GIT_WORKFLOW.md) |
+| KC-V2-008 | Business Domain Model | تحديد الكيانات التجارية وعلاقاتها وملكية البيانات التشغيلية | Active | 1.0 | 2026-08-01 | [`BUSINESS_DOMAIN_MODEL.md`](BUSINESS_DOMAIN_MODEL.md) |
 
 جميع الوثائق أعلاه معتمدة من **Kawalis China (Owner)**.
 
