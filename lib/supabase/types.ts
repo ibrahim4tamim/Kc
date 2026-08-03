@@ -25,6 +25,7 @@ export type SupplierLegalEntityType = "company" | "individual";
 export type SupplierCapability = "manufacturer" | "trading_company" | "broker";
 export type SupplierCertificateType = "ISO9001" | "ISO14001" | "ISO45001" | "CE" | "FDA" | "SGS" | "RoHS" | "BSCI" | "Sedex" | "Other";
 export type SupplierCandidateStatus = "proposed" | "contacted" | "responding" | "quoted" | "shortlisted" | "rejected" | "selected" | "archived";
+export type SupplierRequestType="quotation"|"moq"|"pricing_revision"|"sample"|"certificate"|"specification"|"packaging"|"photos"|"video"|"production_capacity"|"lead_time"|"payment_terms"|"shipping_terms"|"other"; export type SupplierRequestStatus="draft"|"sent"|"waiting_response"|"partially_received"|"completed"|"cancelled"|"archived"; export type SupplierResponseType="message"|"quotation"|"document"|"certificate"|"image"|"video"|"sample_update"|"clarification"|"rejection"|"other";
 export const RFQ_STATUSES = ["draft", "submitted", "under_review", "sourcing", "awaiting_customer", "approved", "cancelled", "completed", "archived"] as const;
 export type RfqStatus = (typeof RFQ_STATUSES)[number];
 export const RFQ_ITEM_STATUSES = ["draft", "ready_for_sourcing", "sourcing", "awaiting_information", "shortlisted", "selected", "cancelled", "completed", "archived"] as const;
@@ -32,8 +33,8 @@ export type RfqItemStatus = (typeof RFQ_ITEM_STATUSES)[number];
 export const RFQ_PRIORITIES = ["low", "normal", "high", "urgent"] as const;
 export type RfqPriority = (typeof RFQ_PRIORITIES)[number];
 export type RfqVisibility = "internal" | "customer";
-export type RfqAttachmentOwnerType = "rfq" | "rfq_item";
-export type RfqActivityEventType = "rfq_created" | "rfq_submitted" | "rfq_status_changed" | "rfq_updated" | "rfq_item_created" | "rfq_item_updated" | "rfq_item_status_changed" | "attachment_added" | "attachment_archived";
+export type RfqAttachmentOwnerType = "rfq" | "rfq_item" | "supplier_response";
+export type RfqActivityEventType = "rfq_created" | "rfq_submitted" | "rfq_status_changed" | "rfq_updated" | "rfq_item_created" | "rfq_item_updated" | "rfq_item_status_changed" | "attachment_added" | "attachment_archived" | "supplier_request_created" | "supplier_request_sent" | "supplier_response_received" | "supplier_request_completed" | "supplier_request_cancelled";
 
 export interface Database {
   public: {
@@ -156,6 +157,8 @@ export interface Database {
       supplier_contacts: { Row:{id:string;supplier_id:string;organization_id:string;name:string;position:string|null;email:string|null;phone:string|null;whatsapp:string|null;preferred_language:string|null;is_primary:boolean;archived_at:string|null;created_at:string;updated_at:string}; Insert:{supplier_id:string;organization_id:string;name:string;position?:string|null;email?:string|null;phone?:string|null;whatsapp?:string|null;preferred_language?:string|null;is_primary?:boolean;archived_at?:string|null}; Update:Partial<Omit<Database["public"]["Tables"]["supplier_contacts"]["Row"],"id"|"supplier_id"|"organization_id"|"created_at">>; Relationships:[] };
       supplier_certificates: { Row:{id:string;supplier_id:string;organization_id:string;certificate_type:SupplierCertificateType;certificate_number:string|null;issuing_body:string|null;issue_date:string|null;expiry_date:string|null;verification_notes:string|null;archived_at:string|null;created_at:string;updated_at:string}; Insert:{supplier_id:string;organization_id:string;certificate_type:SupplierCertificateType;certificate_number?:string|null;issuing_body?:string|null;issue_date?:string|null;expiry_date?:string|null;verification_notes?:string|null;archived_at?:string|null}; Update:Partial<Omit<Database["public"]["Tables"]["supplier_certificates"]["Row"],"id"|"supplier_id"|"organization_id"|"created_at">>; Relationships:[] };
       supplier_candidates: { Row:{id:string;organization_id:string;rfq_item_id:string;supplier_id:string;candidate_status:SupplierCandidateStatus;assigned_to_profile_id:string|null;internal_notes:string|null;archived_at:string|null;created_at:string;updated_at:string}; Insert:{organization_id:string;rfq_item_id:string;supplier_id:string;candidate_status?:SupplierCandidateStatus;assigned_to_profile_id?:string|null;internal_notes?:string|null;archived_at?:string|null}; Update:Partial<Omit<Database["public"]["Tables"]["supplier_candidates"]["Row"],"id"|"organization_id"|"rfq_item_id"|"supplier_id"|"created_at">>; Relationships:[] };
+      supplier_requests:{Row:{id:string;organization_id:string;supplier_candidate_id:string;request_type:SupplierRequestType;subject:string;message:string|null;status:SupplierRequestStatus;assigned_to_profile_id:string|null;requested_by_profile_id:string|null;sent_at:string|null;due_at:string|null;completed_at:string|null;cancelled_at:string|null;internal_notes:string|null;created_at:string;updated_at:string;archived_at:string|null};Insert:{organization_id:string;supplier_candidate_id:string;request_type:SupplierRequestType;subject:string;message?:string|null;status?:SupplierRequestStatus;assigned_to_profile_id?:string|null;requested_by_profile_id?:string|null;sent_at?:string|null;due_at?:string|null;completed_at?:string|null;cancelled_at?:string|null;internal_notes?:string|null;archived_at?:string|null};Update:Partial<Omit<Database["public"]["Tables"]["supplier_requests"]["Row"],"id"|"organization_id"|"supplier_candidate_id"|"created_at">>;Relationships:[]};
+      supplier_responses:{Row:{id:string;organization_id:string;supplier_request_id:string;response_type:SupplierResponseType;message:string|null;received_at:string;received_by_profile_id:string|null;supplier_contact_id:string|null;is_complete_response:boolean;internal_notes:string|null;created_at:string;archived_at:string|null};Insert:{organization_id:string;supplier_request_id:string;response_type:SupplierResponseType;message?:string|null;received_at?:string;received_by_profile_id?:string|null;supplier_contact_id?:string|null;is_complete_response?:boolean;internal_notes?:string|null;archived_at?:string|null};Update:Partial<Omit<Database["public"]["Tables"]["supplier_responses"]["Row"],"id"|"organization_id"|"supplier_request_id"|"created_at">>;Relationships:[]};
     };
     Views: Record<string, never>;
     Functions: {
@@ -168,6 +171,7 @@ export interface Database {
       get_my_rfq_attachments: { Args: { target_rfq_id: string }; Returns: Array<{ id: string; owner_type: RfqAttachmentOwnerType; owner_id: string; original_filename: string; content_type: string; file_size: number; created_at: string }> };
       get_my_rfq_activity: { Args: { target_rfq_id: string }; Returns: Array<{ id: string; rfq_item_id: string | null; event_type: RfqActivityEventType; title: string; description: string | null; occurred_at: string }> };
       replace_supplier_capabilities: { Args: { target_organization_id: string; target_supplier_id: string; selected_capabilities: SupplierCapability[] }; Returns: SupplierCapability[] };
+      complete_supplier_response:{Args:{target_organization_id:string;target_supplier_request_id:string;target_response_type:SupplierResponseType;target_message:string|null;target_received_at:string|null;target_supplier_contact_id:string|null;target_internal_notes:string|null};Returns:Array<{response_id:string;response_type:SupplierResponseType;response_message:string|null;received_at:string;is_complete_response:boolean;request_id:string;request_status:SupplierRequestStatus;completed_at:string}>};
     };
     Enums: {
       app_role: AppRole;
@@ -188,6 +192,7 @@ export interface Database {
       supplier_capability: SupplierCapability;
       supplier_certificate_type: SupplierCertificateType;
       supplier_candidate_status: SupplierCandidateStatus;
+      supplier_request_type:SupplierRequestType;supplier_request_status:SupplierRequestStatus;supplier_response_type:SupplierResponseType;
     };
     CompositeTypes: Record<string, never>;
   };

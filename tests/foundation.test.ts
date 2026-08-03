@@ -18,9 +18,11 @@ import { customerContactInputSchema, customerInputSchema } from "../lib/customer
 import { canDeleteSupplier, canManageSupplier, canReadSupplier, sameSupplierOrganization } from "../lib/suppliers/authorization";
 import { certificateInputSchema, supplierInputSchema } from "../lib/suppliers/validation";
 import { canCustomerReadRfq, canManageRfq, canReadRfq } from "../lib/rfqs/authorization";
-import { activityInputSchema, attachmentInputSchema, rfqInputSchema, rfqItemInputSchema } from "../lib/rfqs/validation";
+import { ACTIVITY_EVENT_TYPES, activityInputSchema, attachmentInputSchema, rfqInputSchema, rfqItemInputSchema } from "../lib/rfqs/validation";
 import { canDeleteCandidate, canManageCandidate, canReadCandidate } from "../lib/supplier-candidates/authorization";
 import { CANDIDATE_STATUSES, candidateInputSchema } from "../lib/supplier-candidates/validation";
+import { REQUEST_STATUSES, REQUEST_TYPES, RESPONSE_TYPES, requestInputSchema, responseInputSchema } from "../lib/supplier-requests/validation";
+import { canDeleteSupplierRequest, canManageSupplierRequest, canReadSupplierRequest } from "../lib/supplier-requests/authorization";
 
 describe("Supabase foundation safety", () => {
   it("uses exactly the approved roles and keeps customer non-internal", () => {
@@ -169,3 +171,34 @@ describe("supplier master data", () => { it("supports multiple capabilities and 
 describe("supplier capability replacement boundary",()=>{it("requires a non-empty unique approved set",()=>{const base={supplierCode:"SUP-01",legalName:"Factory",displayName:"Factory",legalEntityType:"company"};expect(supplierInputSchema.safeParse({...base,capabilities:[]}).success).toBe(false);expect(supplierInputSchema.safeParse({...base,capabilities:["manufacturer","manufacturer"]}).success).toBe(false);expect(supplierInputSchema.safeParse({...base,capabilities:["invalid"]}).success).toBe(false)});it("keeps management role and organization boundaries explicit",()=>{expect(canManageSupplier("owner")).toBe(true);expect(canManageSupplier("admin")).toBe(true);expect(canManageSupplier("operations")).toBe(true);expect(canManageSupplier("finance")).toBe(false);expect(canDeleteSupplier("owner")).toBe(false);expect(sameSupplierOrganization("org-a","org-a")).toBe(true);expect(sameSupplierOrganization("org-a","org-b")).toBe(false)})});
 
 describe("supplier candidate foundation",()=>{const ids={rfqItemId:"11111111-1111-4111-8111-111111111111",supplierId:"22222222-2222-4222-8222-222222222222"};it("uses only approved candidate statuses and archive pairing",()=>{expect(CANDIDATE_STATUSES).toEqual(["proposed","contacted","responding","quoted","shortlisted","rejected","selected","archived"]);expect(candidateInputSchema.parse(ids).candidateStatus).toBe("proposed");expect(candidateInputSchema.safeParse({...ids,candidateStatus:"quotation"}).success).toBe(false);expect(candidateInputSchema.safeParse({...ids,candidateStatus:"archived"}).success).toBe(false);expect(candidateInputSchema.parse({...ids,candidateStatus:"archived",archivedAt:"2026-08-03T00:00:00.000Z"}).candidateStatus).toBe("archived")});it("limits candidate workflow by role and exposes no delete",()=>{expect(canManageCandidate("owner")).toBe(true);expect(canManageCandidate("admin")).toBe(true);expect(canManageCandidate("operations")).toBe(true);expect(canManageCandidate("purchasing")).toBe(true);expect(canManageCandidate("inspection")).toBe(false);expect(canReadCandidate("inspection")).toBe(true);expect(canReadCandidate("finance")).toBe(true);expect(canReadCandidate("customer")).toBe(false);expect(canDeleteCandidate("owner")).toBe(false)})});
+
+describe("supplier request and response foundation", () => {
+  const candidateId = "11111111-1111-4111-8111-111111111111";
+  const requestId = "22222222-2222-4222-8222-222222222222";
+  it("uses only approved request and response values", () => {
+    expect(REQUEST_TYPES).toContain("quotation");
+    expect(REQUEST_STATUSES).toEqual(["draft", "sent", "waiting_response", "partially_received", "completed", "cancelled", "archived"]);
+    expect(RESPONSE_TYPES).toContain("certificate");
+    expect(requestInputSchema.parse({ supplierCandidateId: candidateId, requestType: "quotation", subject: "Quote" }).status).toBe("draft");
+    expect(requestInputSchema.safeParse({ supplierCandidateId: candidateId, requestType: "invalid", subject: "Quote" }).success).toBe(false);
+    expect(responseInputSchema.parse({ supplierRequestId: requestId, responseType: "message" }).isCompleteResponse).toBe(false);
+  });
+  it("requires consistent terminal request timestamps", () => {
+    expect(requestInputSchema.safeParse({ supplierCandidateId: candidateId, requestType: "quotation", subject: "Quote", status: "completed" }).success).toBe(false);
+    expect(requestInputSchema.safeParse({ supplierCandidateId: candidateId, requestType: "quotation", subject: "Quote", status: "cancelled" }).success).toBe(false);
+    expect(requestInputSchema.parse({ supplierCandidateId: candidateId, requestType: "quotation", subject: "Quote", status: "archived", archivedAt: "2026-08-03T00:00:00.000Z" }).status).toBe("archived");
+  });
+  it("keeps supplier request access internal and prevents hard deletion", () => {
+    expect(canManageSupplierRequest("purchasing")).toBe(true);
+    expect(canReadSupplierRequest("inspection")).toBe(true);
+    expect(canReadSupplierRequest("finance")).toBe(true);
+    expect(canReadSupplierRequest("customer")).toBe(false);
+    expect(canDeleteSupplierRequest("owner")).toBe(false);
+  });
+  it("defines the approved internal supplier request activity events", () => {
+    expect(ACTIVITY_EVENT_TYPES).toEqual(expect.arrayContaining(["supplier_request_created", "supplier_request_sent", "supplier_response_received", "supplier_request_completed", "supplier_request_cancelled"]));
+    expect(activityInputSchema.parse({ eventType: "supplier_request_sent", title: "Sent", visibility: "internal" }).visibility).toBe("internal");
+    expect(activityInputSchema.parse({ eventType: "supplier_response_received", title: "Response", visibility: "internal" }).visibility).toBe("internal");
+    expect(activityInputSchema.safeParse({ eventType: "supplier_response_received", title: "Response", visibility: "customer" }).success).toBe(false);
+  });
+});
