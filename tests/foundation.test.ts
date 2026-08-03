@@ -15,6 +15,8 @@ import {
 import { authCallbackUrl, customerMembershipDefaults, isCustomerRole, isVerifiedCustomer, passwordRecoveryUrl, SIGN_OUT_REDIRECT_PATH } from "../lib/auth/customer";
 import { canManageCustomerData, canReadCustomerData, canSelfLinkCustomer, customerSafeDto, hasSinglePrimaryContact } from "../lib/customers/authorization";
 import { customerContactInputSchema, customerInputSchema } from "../lib/customers/validation";
+import { canDeleteSupplier, canManageSupplier, canReadSupplier, sameSupplierOrganization } from "../lib/suppliers/authorization";
+import { certificateInputSchema, supplierInputSchema } from "../lib/suppliers/validation";
 import { canCustomerReadRfq, canManageRfq, canReadRfq } from "../lib/rfqs/authorization";
 import { activityInputSchema, attachmentInputSchema, rfqInputSchema, rfqItemInputSchema } from "../lib/rfqs/validation";
 
@@ -160,3 +162,6 @@ describe("RFQ core foundation", () => {
     expect(canCustomerReadRfq("customer-a", "customer-a")).toBe(true); expect(canCustomerReadRfq("customer-a", "customer-b")).toBe(false);
   });
 });
+
+describe("supplier master data", () => { it("supports multiple capabilities and validates certificates",()=>{expect(supplierInputSchema.parse({supplierCode:"SUP-01",legalName:"Factory",displayName:"Factory",legalEntityType:"company",capabilities:["manufacturer","broker"],countryCode:"cn"}).capabilities).toHaveLength(2);expect(certificateInputSchema.safeParse({certificateType:"ISO9001",issueDate:"2026-01-02",expiryDate:"2026-01-01"}).success).toBe(false)}); it("keeps customer out and purchasing read-only",()=>{expect(canReadSupplier("customer")).toBe(false);expect(canReadSupplier("purchasing")).toBe(true);expect(canManageSupplier("purchasing")).toBe(false);expect(canManageSupplier("owner")).toBe(true)}) });
+describe("supplier capability replacement boundary",()=>{it("requires a non-empty unique approved set",()=>{const base={supplierCode:"SUP-01",legalName:"Factory",displayName:"Factory",legalEntityType:"company"};expect(supplierInputSchema.safeParse({...base,capabilities:[]}).success).toBe(false);expect(supplierInputSchema.safeParse({...base,capabilities:["manufacturer","manufacturer"]}).success).toBe(false);expect(supplierInputSchema.safeParse({...base,capabilities:["invalid"]}).success).toBe(false)});it("keeps management role and organization boundaries explicit",()=>{expect(canManageSupplier("owner")).toBe(true);expect(canManageSupplier("admin")).toBe(true);expect(canManageSupplier("operations")).toBe(true);expect(canManageSupplier("finance")).toBe(false);expect(canDeleteSupplier("owner")).toBe(false);expect(sameSupplierOrganization("org-a","org-a")).toBe(true);expect(sameSupplierOrganization("org-a","org-b")).toBe(false)})});

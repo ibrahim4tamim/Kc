@@ -19,6 +19,11 @@ export const CUSTOMER_STATUSES = ["lead", "active", "inactive", "archived"] as c
 export type CustomerStatus = (typeof CUSTOMER_STATUSES)[number];
 export const CUSTOMER_CONTACT_STATUSES = ["active", "inactive", "archived"] as const;
 export type CustomerContactStatus = (typeof CUSTOMER_CONTACT_STATUSES)[number];
+export type SupplierStatus = "active" | "inactive" | "suspended" | "archived";
+export type SupplierVerificationStatus = "unverified" | "under_review" | "verified" | "restricted" | "archived";
+export type SupplierLegalEntityType = "company" | "individual";
+export type SupplierCapability = "manufacturer" | "trading_company" | "broker";
+export type SupplierCertificateType = "ISO9001" | "ISO14001" | "ISO45001" | "CE" | "FDA" | "SGS" | "RoHS" | "BSCI" | "Sedex" | "Other";
 export const RFQ_STATUSES = ["draft", "submitted", "under_review", "sourcing", "awaiting_customer", "approved", "cancelled", "completed", "archived"] as const;
 export type RfqStatus = (typeof RFQ_STATUSES)[number];
 export const RFQ_ITEM_STATUSES = ["draft", "ready_for_sourcing", "sourcing", "awaiting_information", "shortlisted", "selected", "cancelled", "completed", "archived"] as const;
@@ -145,6 +150,10 @@ export interface Database {
         Update: never;
         Relationships: [];
       };
+      suppliers: { Row: { id:string; organization_id:string; supplier_code:string; legal_name:string; display_name:string; supplier_status:SupplierStatus; verification_status:SupplierVerificationStatus; legal_entity_type:SupplierLegalEntityType; website:string|null; email:string|null; phone:string|null; whatsapp:string|null; country_code:string|null; province:string|null; city:string|null; address:string|null; postal_code:string|null; timezone:string|null; preferred_currency:string|null; preferred_language:string|null; years_in_business:number|null; employee_count:number|null; annual_capacity_notes:string|null; notes_internal:string|null; archived_at:string|null; created_at:string; updated_at:string }; Insert: { organization_id:string; supplier_code:string; legal_name:string; display_name:string; supplier_status?:SupplierStatus; verification_status?:SupplierVerificationStatus; legal_entity_type:SupplierLegalEntityType; website?:string|null; email?:string|null; phone?:string|null; whatsapp?:string|null; country_code?:string|null; province?:string|null; city?:string|null; address?:string|null; postal_code?:string|null; timezone?:string|null; preferred_currency?:string|null; preferred_language?:string|null; years_in_business?:number|null; employee_count?:number|null; annual_capacity_notes?:string|null; notes_internal?:string|null; archived_at?:string|null }; Update: Partial<Omit<Database["public"]["Tables"]["suppliers"]["Row"],"id"|"organization_id"|"supplier_code"|"created_at">>; Relationships: [] };
+      supplier_capabilities: { Row:{supplier_id:string;organization_id:string;capability:SupplierCapability;created_at:string}; Insert:{supplier_id:string;organization_id:string;capability:SupplierCapability}; Update:never; Relationships:[] };
+      supplier_contacts: { Row:{id:string;supplier_id:string;organization_id:string;name:string;position:string|null;email:string|null;phone:string|null;whatsapp:string|null;preferred_language:string|null;is_primary:boolean;archived_at:string|null;created_at:string;updated_at:string}; Insert:{supplier_id:string;organization_id:string;name:string;position?:string|null;email?:string|null;phone?:string|null;whatsapp?:string|null;preferred_language?:string|null;is_primary?:boolean;archived_at?:string|null}; Update:Partial<Omit<Database["public"]["Tables"]["supplier_contacts"]["Row"],"id"|"supplier_id"|"organization_id"|"created_at">>; Relationships:[] };
+      supplier_certificates: { Row:{id:string;supplier_id:string;organization_id:string;certificate_type:SupplierCertificateType;certificate_number:string|null;issuing_body:string|null;issue_date:string|null;expiry_date:string|null;verification_notes:string|null;archived_at:string|null;created_at:string;updated_at:string}; Insert:{supplier_id:string;organization_id:string;certificate_type:SupplierCertificateType;certificate_number?:string|null;issuing_body?:string|null;issue_date?:string|null;expiry_date?:string|null;verification_notes?:string|null;archived_at?:string|null}; Update:Partial<Omit<Database["public"]["Tables"]["supplier_certificates"]["Row"],"id"|"supplier_id"|"organization_id"|"created_at">>; Relationships:[] };
     };
     Views: Record<string, never>;
     Functions: {
@@ -156,6 +165,7 @@ export interface Database {
       get_my_rfq_items: { Args: { target_rfq_id: string }; Returns: Array<{ id: string; item_number: number; product_name: string; description: string | null; specifications: string | null; requested_quantity: number; unit: string; target_unit_price: number | null; target_currency: string | null; target_moq: number | null; target_lead_time_days: number | null; customization_required: boolean; branding_required: boolean; packaging_required: boolean; sample_required: boolean; status: RfqItemStatus; priority: RfqPriority; customer_notes: string | null; created_at: string }> };
       get_my_rfq_attachments: { Args: { target_rfq_id: string }; Returns: Array<{ id: string; owner_type: RfqAttachmentOwnerType; owner_id: string; original_filename: string; content_type: string; file_size: number; created_at: string }> };
       get_my_rfq_activity: { Args: { target_rfq_id: string }; Returns: Array<{ id: string; rfq_item_id: string | null; event_type: RfqActivityEventType; title: string; description: string | null; occurred_at: string }> };
+      replace_supplier_capabilities: { Args: { target_organization_id: string; target_supplier_id: string; selected_capabilities: SupplierCapability[] }; Returns: SupplierCapability[] };
     };
     Enums: {
       app_role: AppRole;
@@ -170,6 +180,11 @@ export interface Database {
       rfq_visibility: RfqVisibility;
       rfq_attachment_owner_type: RfqAttachmentOwnerType;
       rfq_activity_event_type: RfqActivityEventType;
+      supplier_status: SupplierStatus;
+      supplier_verification_status: SupplierVerificationStatus;
+      supplier_legal_entity_type: SupplierLegalEntityType;
+      supplier_capability: SupplierCapability;
+      supplier_certificate_type: SupplierCertificateType;
     };
     CompositeTypes: Record<string, never>;
   };
