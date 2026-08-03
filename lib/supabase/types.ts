@@ -24,6 +24,7 @@ export type SupplierVerificationStatus = "unverified" | "under_review" | "verifi
 export type SupplierLegalEntityType = "company" | "individual";
 export type SupplierCapability = "manufacturer" | "trading_company" | "broker";
 export type SupplierCertificateType = "ISO9001" | "ISO14001" | "ISO45001" | "CE" | "FDA" | "SGS" | "RoHS" | "BSCI" | "Sedex" | "Other";
+export type SupplierCandidateStatus = "proposed" | "contacted" | "responding" | "quoted" | "shortlisted" | "rejected" | "selected" | "archived";
 export const RFQ_STATUSES = ["draft", "submitted", "under_review", "sourcing", "awaiting_customer", "approved", "cancelled", "completed", "archived"] as const;
 export type RfqStatus = (typeof RFQ_STATUSES)[number];
 export const RFQ_ITEM_STATUSES = ["draft", "ready_for_sourcing", "sourcing", "awaiting_information", "shortlisted", "selected", "cancelled", "completed", "archived"] as const;
@@ -154,6 +155,7 @@ export interface Database {
       supplier_capabilities: { Row:{supplier_id:string;organization_id:string;capability:SupplierCapability;created_at:string}; Insert:{supplier_id:string;organization_id:string;capability:SupplierCapability}; Update:never; Relationships:[] };
       supplier_contacts: { Row:{id:string;supplier_id:string;organization_id:string;name:string;position:string|null;email:string|null;phone:string|null;whatsapp:string|null;preferred_language:string|null;is_primary:boolean;archived_at:string|null;created_at:string;updated_at:string}; Insert:{supplier_id:string;organization_id:string;name:string;position?:string|null;email?:string|null;phone?:string|null;whatsapp?:string|null;preferred_language?:string|null;is_primary?:boolean;archived_at?:string|null}; Update:Partial<Omit<Database["public"]["Tables"]["supplier_contacts"]["Row"],"id"|"supplier_id"|"organization_id"|"created_at">>; Relationships:[] };
       supplier_certificates: { Row:{id:string;supplier_id:string;organization_id:string;certificate_type:SupplierCertificateType;certificate_number:string|null;issuing_body:string|null;issue_date:string|null;expiry_date:string|null;verification_notes:string|null;archived_at:string|null;created_at:string;updated_at:string}; Insert:{supplier_id:string;organization_id:string;certificate_type:SupplierCertificateType;certificate_number?:string|null;issuing_body?:string|null;issue_date?:string|null;expiry_date?:string|null;verification_notes?:string|null;archived_at?:string|null}; Update:Partial<Omit<Database["public"]["Tables"]["supplier_certificates"]["Row"],"id"|"supplier_id"|"organization_id"|"created_at">>; Relationships:[] };
+      supplier_candidates: { Row:{id:string;organization_id:string;rfq_item_id:string;supplier_id:string;candidate_status:SupplierCandidateStatus;assigned_to_profile_id:string|null;internal_notes:string|null;archived_at:string|null;created_at:string;updated_at:string}; Insert:{organization_id:string;rfq_item_id:string;supplier_id:string;candidate_status?:SupplierCandidateStatus;assigned_to_profile_id?:string|null;internal_notes?:string|null;archived_at?:string|null}; Update:Partial<Omit<Database["public"]["Tables"]["supplier_candidates"]["Row"],"id"|"organization_id"|"rfq_item_id"|"supplier_id"|"created_at">>; Relationships:[] };
     };
     Views: Record<string, never>;
     Functions: {
@@ -185,6 +187,7 @@ export interface Database {
       supplier_legal_entity_type: SupplierLegalEntityType;
       supplier_capability: SupplierCapability;
       supplier_certificate_type: SupplierCertificateType;
+      supplier_candidate_status: SupplierCandidateStatus;
     };
     CompositeTypes: Record<string, never>;
   };
