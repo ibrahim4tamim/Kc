@@ -25,6 +25,8 @@ import { REQUEST_STATUSES, REQUEST_TYPES, RESPONSE_TYPES, requestInputSchema, re
 import { canDeleteSupplierRequest, canManageSupplierRequest, canReadSupplierRequest } from "../lib/supplier-requests/authorization";
 import { canDeleteQuotation, canManageQuotation, canReadQuotation } from "../lib/quotations/authorization";
 import { QUOTATION_STATUSES, quotationInputSchema, quotationItemInputSchema } from "../lib/quotations/validation";
+import { canDeleteSupplierSelection, canManageSupplierSelection, canReadQuoteComparison } from "../lib/quote-comparisons/authorization";
+import { comparisonReviewSchema, requiresFewerThanThreeJustification, selectionCancellationSchema, supplierSelectionInputSchema } from "../lib/quote-comparisons/validation";
 
 describe("Supabase foundation safety", () => {
   it("uses exactly the approved roles and keeps customer non-internal", () => {
@@ -227,5 +229,30 @@ describe("quotation foundation", () => {
     expect(attachmentInputSchema.parse({ ownerType: "quotation", ownerId: ids.rfqId, storageBucket: "rfq-files", storagePath: "org/quote.pdf", originalFilename: "quote.pdf", contentType: "application/pdf", fileSize: 1 }).ownerType).toBe("quotation");
     expect(activityInputSchema.safeParse({ eventType: "quotation_received", title: "Received", visibility: "customer" }).success).toBe(false);
     expect(activityInputSchema.parse({ eventType: "quotation_revised", title: "Revised", visibility: "internal" }).eventType).toBe("quotation_revised");
+  });
+});
+
+describe("quote comparison and supplier selection foundation", () => {
+  const ids = { rfqId: "11111111-1111-4111-8111-111111111111", rfqItemId: "22222222-2222-4222-8222-222222222222", supplierId: "33333333-3333-4333-8333-333333333333", supplierCandidateId: "44444444-4444-4444-8444-444444444444", quotationId: "55555555-5555-4555-8555-555555555555" };
+  it("requires a structured, organization-scoped human selection decision", () => {
+    expect(supplierSelectionInputSchema.parse({ ...ids, selectionReason: "Commercial terms fit the requirement" }).selectionReason).toBe("Commercial terms fit the requirement");
+    expect(supplierSelectionInputSchema.safeParse({ ...ids, selectionReason: "" }).success).toBe(false);
+    expect(supplierSelectionInputSchema.safeParse({ ...ids, quotationId: "bad", selectionReason: "Reason" }).success).toBe(false);
+    expect(selectionCancellationSchema.safeParse({ selectionId: ids.quotationId, reason: "" }).success).toBe(false);
+  });
+  it("keeps three quotations as readiness information and requires a documented exception below it", () => {
+    expect(requiresFewerThanThreeJustification(0)).toBe(true);
+    expect(requiresFewerThanThreeJustification(2)).toBe(true);
+    expect(requiresFewerThanThreeJustification(3)).toBe(false);
+  });
+  it("keeps comparison and selection internal with no delete path", () => {
+    expect(canManageSupplierSelection("owner")).toBe(true); expect(canManageSupplierSelection("admin")).toBe(true); expect(canManageSupplierSelection("operations")).toBe(true); expect(canManageSupplierSelection("purchasing")).toBe(true);
+    expect(canReadQuoteComparison("inspection")).toBe(true); expect(canReadQuoteComparison("finance")).toBe(true); expect(canManageSupplierSelection("inspection")).toBe(false); expect(canManageSupplierSelection("finance")).toBe(false);
+    expect(canReadQuoteComparison("customer")).toBe(false); expect(canDeleteSupplierSelection("owner")).toBe(false);
+  });
+  it("accepts only internal comparison-review activity", () => {
+    expect(comparisonReviewSchema.parse({ rfqId: ids.rfqId, rfqItemId: ids.rfqItemId, notes: "Reviewed" }).notes).toBe("Reviewed");
+    expect(activityInputSchema.safeParse({ eventType: "supplier_selected", title: "Selected", visibility: "customer" }).success).toBe(false);
+    expect(activityInputSchema.parse({ eventType: "supplier_selection_changed", title: "Changed", visibility: "internal" }).eventType).toBe("supplier_selection_changed");
   });
 });
