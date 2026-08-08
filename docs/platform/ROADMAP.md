@@ -10,10 +10,10 @@
 
 - **Project Status:** Active Development
 - **Overall Progress:** 45%
-- **Current Milestone:** Commercial / Business Workflow
-- **Current Sprint:** Sprint 2H — Purchase Orders
-- **Last Approved Sprint:** Sprint 2G — Quote Comparison & Supplier Selection Foundation
-- **Approved baseline:** Sprint 2G commit on `kc-platform-v2` (see Git history).
+- **Current Milestone:** Execution Workflow
+- **Current Sprint:** Sprint 3A — Payments Foundation
+- **Last Approved Sprint:** Sprint 2H — Purchase Order Foundation
+- **Approved baseline:** Sprint 2H commit on `kc-platform-v2` (see Git history).
 
 ## 2. Frozen Architecture Principles
 
@@ -31,15 +31,15 @@
 
 Supabase foundation; Authentication; RBAC; Organizations; Memberships; Customer authentication/onboarding; Customer master data and contacts; RFQ and RFQ Items; RFQ attachments/activity foundation; Supplier master data, contacts, and certificates; Supplier Candidates; Supplier Requests; Supplier Responses.
 
-### Milestone 2 — Commercial Workflow — IN PROGRESS
+### Milestone 2 — Commercial Workflow — COMPLETE
 
 - **Sprint 2F — Quotation Foundation:** approved.
 - **Sprint 2G — Quote Comparison & Supplier Selection:** approved.
-- **Sprint 2H — Purchase Orders:** next.
+- **Sprint 2H — Purchase Orders:** approved.
 
-### Milestone 3 — Execution Workflow
+### Milestone 3 — Execution Workflow — NEXT
 
-Payments, production, inspection, shipment, and delivery.
+Sprint 3A — Payments Foundation; production; inspection; shipment; and delivery.
 
 ### Milestone 4 — Customer Portal
 
@@ -56,7 +56,8 @@ Payments, production, inspection, shipment, and delivery.
 | 1A through 2E | Approved |
 | 2F | Approved |
 | 2G | Approved |
-| 2H | Next |
+| 2H | Approved |
+| 3A | Next |
 
 ## 5. Delivery Rule
 

@@ -1,0 +1,8 @@
+import { z } from "zod";
+export const PURCHASE_ORDER_STATUSES=["draft","approved","issued","acknowledged","cancelled","superseded","archived"] as const;
+const uuid=z.string().uuid(); const optionalText=(max:number)=>z.string().trim().max(max).transform(v=>v||undefined).optional();
+export const createPurchaseOrderSchema=z.object({supplierSelectionId:uuid,orderDate:z.string().date(),expectedDeliveryDate:z.string().date().optional(),supplierReference:optionalText(240),internalNotes:optionalText(4000),supplierNotes:optionalText(4000)}).refine(v=>!v.expectedDeliveryDate||v.expectedDeliveryDate>=v.orderDate,{message:"expectedDeliveryDate must not precede orderDate"});
+export const purchaseOrderItemSchema=z.object({rfqItemId:uuid,quantity:z.number().finite().positive(),unit:z.string().trim().min(1).max(40),unitPrice:z.number().finite().nonnegative(),currency:z.string().trim().toUpperCase().regex(/^[A-Z]{3}$/),productDescription:optionalText(4000),moq:z.number().finite().positive().optional(),agreedLeadTimeDays:z.number().int().nonnegative().optional(),packagingNotes:optionalText(1000),supplierNotes:optionalText(4000),internalNotes:optionalText(4000)});
+export const draftUpdateSchema=z.object({expectedDeliveryDate:z.string().date().nullable().optional(),supplierReference:optionalText(240),internalNotes:optionalText(4000),supplierNotes:optionalText(4000)});
+export const purchaseOrderIdSchema=z.object({purchaseOrderId:uuid,reason:optionalText(4000)});
+export type CreatePurchaseOrderInput=z.infer<typeof createPurchaseOrderSchema>; export type PurchaseOrderItemInput=z.infer<typeof purchaseOrderItemSchema>;
