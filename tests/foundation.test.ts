@@ -23,6 +23,8 @@ import { canDeleteCandidate, canManageCandidate, canReadCandidate } from "../lib
 import { CANDIDATE_STATUSES, candidateInputSchema } from "../lib/supplier-candidates/validation";
 import { REQUEST_STATUSES, REQUEST_TYPES, RESPONSE_TYPES, requestInputSchema, responseInputSchema } from "../lib/supplier-requests/validation";
 import { canDeleteSupplierRequest, canManageSupplierRequest, canReadSupplierRequest } from "../lib/supplier-requests/authorization";
+import { canDeleteQuotation, canManageQuotation, canReadQuotation } from "../lib/quotations/authorization";
+import { QUOTATION_STATUSES, quotationInputSchema, quotationItemInputSchema } from "../lib/quotations/validation";
 
 describe("Supabase foundation safety", () => {
   it("uses exactly the approved roles and keeps customer non-internal", () => {
@@ -158,7 +160,7 @@ describe("RFQ core foundation", () => {
   });
   it("keeps activity bounded, explicitly visible, and foundation-only", () => {
     expect(activityInputSchema.parse({ eventType: "rfq_created", title: "Created", visibility: "customer" }).eventType).toBe("rfq_created");
-    expect(activityInputSchema.safeParse({ eventType: "quotation_received", title: "No" }).success).toBe(false);
+    expect(activityInputSchema.safeParse({ eventType: "unapproved_event", title: "No" }).success).toBe(false);
   });
   it("enforces organization-scoped staff and linked-customer boundaries in pure authorization", () => {
     expect(canManageRfq("operations")).toBe(true); expect(canManageRfq("purchasing")).toBe(false);
@@ -200,5 +202,30 @@ describe("supplier request and response foundation", () => {
     expect(activityInputSchema.parse({ eventType: "supplier_request_sent", title: "Sent", visibility: "internal" }).visibility).toBe("internal");
     expect(activityInputSchema.parse({ eventType: "supplier_response_received", title: "Response", visibility: "internal" }).visibility).toBe("internal");
     expect(activityInputSchema.safeParse({ eventType: "supplier_response_received", title: "Response", visibility: "customer" }).success).toBe(false);
+  });
+});
+
+describe("quotation foundation", () => {
+  const ids = { rfqId: "11111111-1111-4111-8111-111111111111", rfqItemId: "22222222-2222-4222-8222-222222222222", supplierId: "33333333-3333-4333-8333-333333333333", supplierCandidateId: "44444444-4444-4444-8444-444444444444" };
+  it("accepts approved commercial fields and validates version input boundaries", () => {
+    expect(QUOTATION_STATUSES).toEqual(["draft", "received", "under_review", "accepted", "rejected", "superseded", "archived"]);
+    expect(quotationInputSchema.parse({ ...ids, quotationReference: " Q-2026-01 ", currency: "usd", quotationDate: "2026-08-08", validUntil: "2026-08-09", incoterm: "fob", leadTimeDays: 10, moq: 1 }).currency).toBe("USD");
+    expect(quotationInputSchema.safeParse({ ...ids, quotationReference: "Q-1", currency: "USD", quotationDate: "2026-08-08", validUntil: "2026-08-07" }).success).toBe(false);
+    expect(quotationInputSchema.safeParse({ ...ids, quotationReference: "Q-1", currency: "USD", quotationDate: "2026-08-08", status: "superseded" }).success).toBe(false);
+  });
+  it("validates positive line quantities and non-negative unit prices", () => {
+    expect(quotationItemInputSchema.parse({ rfqItemId: ids.rfqItemId, quantity: 1, unit: "pcs", unitPrice: 0 }).unit).toBe("pcs");
+    expect(quotationItemInputSchema.safeParse({ rfqItemId: ids.rfqItemId, quantity: 0, unit: "pcs", unitPrice: 1 }).success).toBe(false);
+    expect(quotationItemInputSchema.safeParse({ rfqItemId: ids.rfqItemId, quantity: 1, unit: "pcs", unitPrice: -1 }).success).toBe(false);
+  });
+  it("keeps quotations internal, role-scoped, and archive-only", () => {
+    expect(canManageQuotation("owner")).toBe(true); expect(canManageQuotation("admin")).toBe(true); expect(canManageQuotation("operations")).toBe(true); expect(canManageQuotation("purchasing")).toBe(true);
+    expect(canReadQuotation("inspection")).toBe(true); expect(canReadQuotation("finance")).toBe(true); expect(canManageQuotation("inspection")).toBe(false); expect(canManageQuotation("finance")).toBe(false);
+    expect(canReadQuotation("customer")).toBe(false); expect(canDeleteQuotation("owner")).toBe(false);
+  });
+  it("keeps quotation attachment and activity metadata internal", () => {
+    expect(attachmentInputSchema.parse({ ownerType: "quotation", ownerId: ids.rfqId, storageBucket: "rfq-files", storagePath: "org/quote.pdf", originalFilename: "quote.pdf", contentType: "application/pdf", fileSize: 1 }).ownerType).toBe("quotation");
+    expect(activityInputSchema.safeParse({ eventType: "quotation_received", title: "Received", visibility: "customer" }).success).toBe(false);
+    expect(activityInputSchema.parse({ eventType: "quotation_revised", title: "Revised", visibility: "internal" }).eventType).toBe("quotation_revised");
   });
 });
