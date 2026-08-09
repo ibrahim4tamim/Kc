@@ -1,0 +1,1 @@
+import type {AppRole} from "@/lib/supabase/types";export const canReadPayments=(r:AppRole|null)=>["owner","admin","finance","operations","purchasing","inspection"].includes(r??"");export const canManagePayments=(r:AppRole|null)=>["owner","admin","finance"].includes(r??"");export const canDeletePayment=(_:AppRole|null)=>false;

@@ -29,6 +29,8 @@ import { canDeleteSupplierSelection, canManageSupplierSelection, canReadQuoteCom
 import { comparisonReviewSchema, requiresFewerThanThreeJustification, selectionCancellationSchema, supplierSelectionInputSchema } from "../lib/quote-comparisons/validation";
 import { canDeletePurchaseOrder, canManagePurchaseOrder, canReadPurchaseOrder } from "../lib/purchase-orders/authorization";
 import { createPurchaseOrderSchema, purchaseOrderItemSchema, PURCHASE_ORDER_STATUSES } from "../lib/purchase-orders/validation";
+import { canDeletePayment, canManagePayments, canReadPayments } from "../lib/payments/authorization";
+import { paymentRecordSchema, paymentScheduleSchema } from "../lib/payments/validation";
 
 describe("Supabase foundation safety", () => {
   it("uses exactly the approved roles and keeps customer non-internal", () => {
@@ -260,3 +262,17 @@ describe("quote comparison and supplier selection foundation", () => {
 });
 
 describe("purchase order foundation",()=>{const selectionId="11111111-1111-4111-8111-111111111111",rfqItemId="22222222-2222-4222-8222-222222222222";it("validates an active-selection PO creation boundary and commercial snapshots",()=>{expect(PURCHASE_ORDER_STATUSES).toEqual(["draft","approved","issued","acknowledged","cancelled","superseded","archived"]);expect(createPurchaseOrderSchema.parse({supplierSelectionId:selectionId,orderDate:"2026-08-10",expectedDeliveryDate:"2026-08-11"}).supplierSelectionId).toBe(selectionId);expect(createPurchaseOrderSchema.safeParse({supplierSelectionId:selectionId,orderDate:"2026-08-10",expectedDeliveryDate:"2026-08-09"}).success).toBe(false);expect(purchaseOrderItemSchema.parse({rfqItemId,quantity:1,unit:"pcs",unitPrice:0,currency:"usd"}).currency).toBe("USD");expect(purchaseOrderItemSchema.safeParse({rfqItemId,quantity:0,unit:"pcs",unitPrice:1,currency:"USD"}).success).toBe(false)});it("keeps purchase orders internal, role-scoped, and archive-only",()=>{expect(canManagePurchaseOrder("owner")).toBe(true);expect(canManagePurchaseOrder("purchasing")).toBe(true);expect(canReadPurchaseOrder("finance")).toBe(true);expect(canReadPurchaseOrder("inspection")).toBe(true);expect(canManagePurchaseOrder("finance")).toBe(false);expect(canReadPurchaseOrder("customer")).toBe(false);expect(canDeletePurchaseOrder("owner")).toBe(false)});it("limits PO attachments and timeline events to internal use",()=>{expect(attachmentInputSchema.parse({ownerType:"purchase_order",ownerId:selectionId,storageBucket:"rfq-files",storagePath:"org/po.pdf",originalFilename:"po.pdf",contentType:"application/pdf",fileSize:1}).ownerType).toBe("purchase_order");expect(activityInputSchema.safeParse({eventType:"purchase_order_issued",title:"Issued",visibility:"customer"}).success).toBe(false);expect(activityInputSchema.parse({eventType:"purchase_order_created",title:"Created",visibility:"internal"}).eventType).toBe("purchase_order_created")})});
+
+describe("payments foundation", () => { const poId = "11111111-1111-4111-8111-111111111111", supplierId = "22222222-2222-4222-8222-222222222222";
+  it("validates positive, currency-normalized schedules and external payment evidence", () => {
+    expect(paymentScheduleSchema.parse({ purchaseOrderId: poId, sequenceNumber: 1, paymentType: "deposit", expectedAmount: 12.5, currency: "usd" }).currency).toBe("USD");
+    expect(paymentScheduleSchema.safeParse({ purchaseOrderId: poId, sequenceNumber: 0, paymentType: "deposit", expectedAmount: 1, currency: "USD" }).success).toBe(false);
+    expect(paymentRecordSchema.parse({ purchaseOrderId: poId, supplierId, amount: 1, currency: "usd", paidAt: "2026-08-11T00:00:00.000Z", paymentMethod: "bank_transfer" }).currency).toBe("USD");
+    expect(paymentRecordSchema.safeParse({ purchaseOrderId: poId, supplierId, amount: 0, currency: "USD", paidAt: "2026-08-11T00:00:00.000Z", paymentMethod: "bank_transfer" }).success).toBe(false);
+  });
+  it("keeps payment obligations and evidence finance-managed, internal, and archive-only", () => {
+    expect(canManagePayments("finance")).toBe(true); expect(canManagePayments("purchasing")).toBe(false); expect(canReadPayments("purchasing")).toBe(true); expect(canReadPayments("customer")).toBe(false); expect(canDeletePayment("owner")).toBe(false);
+    expect(attachmentInputSchema.parse({ ownerType: "payment_record", ownerId: poId, storageBucket: "rfq-files", storagePath: "org/proof.pdf", originalFilename: "proof.pdf", contentType: "application/pdf", fileSize: 1 }).ownerType).toBe("payment_record");
+    expect(activityInputSchema.safeParse({ eventType: "payment_recorded", title: "Recorded", visibility: "customer" }).success).toBe(false);
+  });
+});

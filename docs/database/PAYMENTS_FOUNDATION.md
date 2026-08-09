@@ -1,0 +1,3 @@
+# Payments Foundation
+
+Sprint 3A records external supplier payment obligations and evidence only; it never executes or integrates payments. Payment schedules are planned installments; payment records are actual positive external payments and support partial payments. Both are PO-scoped, organization-scoped, RLS protected, archive-only, and finance-managed (owner/admin/finance). Purchasing and operations read only; customers have no access. Currency is preserved and no FX aggregation is performed. Payment evidence reuses internal attachment metadata; no binary storage or provider credentials are stored.
