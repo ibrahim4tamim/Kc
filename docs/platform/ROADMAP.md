@@ -8,12 +8,11 @@
 
 ## 1. Current State
 
-- **Project Status:** Active Development
-- **Overall Progress:** 45%
-- **Current Milestone:** Execution Workflow
-- **Current Sprint:** Sprint 3A — Payments Foundation
-- **Last Approved Sprint:** Sprint 2H — Purchase Order Foundation
-- **Approved baseline:** Sprint 2H commit on `kc-platform-v2` (see Git history).
+- **Project Status:** PAUSED
+- **Current Milestone:** Execution Workflow — IN PROGRESS
+- **Last Completed Sprint:** Sprint 3A — Payments Foundation
+- **Resume Point:** Sprint 3B — Production Tracking Foundation
+- **Approved baseline:** `43b15bdfad1eb9ae043db915675eeab160ed7967` on `kc-platform-v2`.
 
 ## 2. Frozen Architecture Principles
 
@@ -37,9 +36,9 @@ Supabase foundation; Authentication; RBAC; Organizations; Memberships; Customer 
 - **Sprint 2G — Quote Comparison & Supplier Selection:** approved.
 - **Sprint 2H — Purchase Orders:** approved.
 
-### Milestone 3 — Execution Workflow — NEXT
+### Milestone 3 — Execution Workflow — IN PROGRESS
 
-Sprint 3A — Payments Foundation; production; inspection; shipment; and delivery.
+Sprint 3A — Payments Foundation is complete. Production Tracking, Inspection, Shipment, and Delivery have not started. Resume with Sprint 3B — Production Tracking Foundation.
 
 ### Milestone 4 — Customer Portal
 
@@ -57,7 +56,8 @@ Sprint 3A — Payments Foundation; production; inspection; shipment; and deliver
 | 2F | Approved |
 | 2G | Approved |
 | 2H | Approved |
-| 3A | Next |
+| 3A — Payments Foundation | Complete |
+| 3B — Production Tracking Foundation | Resume point; not started |
 
 ## 5. Delivery Rule
 
@@ -70,3 +70,4 @@ Every sprint remains additive, organization-scoped, RLS-protected, server-author
 - `KC-V2-003 — DATA_STRATEGY.md`
 - `KC-V2-006 — DEVELOPMENT_RULES.md`
 - `KC-V2-008 — BUSINESS_DOMAIN_MODEL.md`
+- `PROJECT_CHECKPOINT.md`
